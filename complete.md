@@ -71,18 +71,29 @@ Tudo que está neste documento é correto e você pode informar. Se algo NÃO es
 - **Disponibilidade:** 24 horas por dia, 7 dias por semana (24/7)
 - **Transferência humana:** Após qualificação completa do lead
 
+### Empresas do Grupo
+- **Grupo Áurea:** Empresa principal de soluções de crédito
+- **AltaCred:** Empresa também do Grupo Áurea
+
 ---
 
 ## 💰 VALORES E SIMULAÇÕES
 
 ### Cálculo de Liberação Baseado em Renda
-O valor liberado é proporcional à renda líquida mensal do cliente:
+O valor liberado é baseado na renda líquida mensal do cliente:
 
-- Renda de R$ 1.500 - R$ 1.999: Libera até R$ 300
-- Renda de R$ 2.000 - R$ 2.499: Libera até R$ 500
-- Renda de R$ 2.500 - R$ 2.999: Libera até R$ 600
-- Renda de R$ 3.000 - R$ 3.499: Libera até R$ 800
-- Renda acima de R$ 3.500: Libera até R$ 1.000
+| Valor do Empréstimo | Renda Líquida Necessária |
+|---------------------|--------------------------|
+| R$ 300 | R$ 1.200 |
+| R$ 400 | R$ 1.600 |
+| R$ 500 | R$ 2.000 |
+| R$ 600 | R$ 2.400 |
+| R$ 700 | R$ 2.800 |
+| R$ 800 | R$ 3.200 |
+| R$ 900 | R$ 3.600 |
+| R$ 1.000 | R$ 4.000 |
+
+**Como usar:** Se o cliente ganha R$ 2.500, por exemplo, ele pode pegar até R$ 600 (pois precisa de R$ 2.400). Se ganhar R$ 3.000, pode pegar até R$ 900 (pois precisa de R$ 2.800).
 
 ### Estrutura de Pagamento (Prazo: 15 dias corridos)
 

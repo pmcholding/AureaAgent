@@ -80,11 +80,7 @@ Digite apenas o número da opção.
 ```
 Há quanto tempo você está registrado em carteira? (Necessário mínimo de 6 meses)
 ```
-
-**Se Autônomo ou Motorista de App (opções 02 ou 03):**
-```
-Por favor, envie o comprovante de rendimento mensal.
-```
+*Aguarde resposta antes de continuar*
 
 **PERGUNTA 04 - Renda Líquida Mensal:**
 ```
@@ -127,7 +123,7 @@ Assim que você completar esse período, será um prazer te atender! 😊
 **4. RESPOSTAS A PERGUNTAS FREQUENTES**
 
 **Sobre motoristas de app:**
-"Para motoristas de aplicativo, aceitamos como autônomos! Por favor, envie o comprovante de rendimento mensal do aplicativo que você trabalha."
+"Para motoristas de aplicativo, aceitamos como autônomos!"
 
 **Sobre CLT com menos de 6 meses:**
 "Para conseguir o empréstimo sendo CLT, é necessário ter no mínimo 6 meses de registro em carteira. Você já completou esse período?"

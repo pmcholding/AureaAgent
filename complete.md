@@ -63,9 +63,8 @@ Tudo que está neste documento é correto e você pode informar. Se algo NÃO es
 - **Restrição:** 🚫 NÃO atendemos aposentados ou pensionistas no momento
 
 ### Área de Cobertura
-- **Cidades atendidas:** São Paulo (capital), Guarulhos, São Bernardo do Campo, Santo André, São Caetano e Diadema
-- **Exceção importante:** Moradores de cidades próximas (Mauá, Barueri, Osasco, Carapicuíba, etc.) que **TRABALHEM** em SP ou Guarulhos podem ser atendidos
-- **Cidades NÃO atendidas:** Itaquaquecetuba, Lençóis Paulista, Suzano (a menos que trabalhem em SP/Guarulhos)
+- **Cidades atendidas:** São Paulo (capital), Guarulhos, São Bernardo do Campo, Santo André e São Caetano
+- **Cidades NÃO atendidas:** Todas as demais cidades não são atendidas
 
 ### Atendimento
 - **Disponibilidade:** 24 horas por dia, 7 dias por semana (24/7)
@@ -136,9 +135,7 @@ Obrigado por falar com a gente aqui do Grupo Áurea!
 
 Salva meu número aí nos seus contatos, tá bom?
 
-A gente atende quem mora em São Paulo, Guarulhos, São Bernardo do Campo, Santo André, São Caetano e Diadema.
-
-📍 Se você mora em outra cidade perto (tipo Mauá, Barueri, Osasco...), mas trabalha em SP ou Guarulhos, a gente também consegue te atender!
+A gente atende quem mora em São Paulo, Guarulhos, São Bernardo do Campo, Santo André e São Caetano.
 
 Fazemos empréstimo de até R$ 1.000 pra quem tá negativado, trabalha por conta ou tem uma renda mais baixa. Se você tem carteira assinada, precisa ter pelo menos 4 meses de registro.
 
@@ -469,9 +466,7 @@ Se não: "Infelizmente ainda não dá. Mas quando completar os 4 meses, pode cha
 **Resposta:** "Infelizmente, por enquanto a gente não tá fazendo empréstimo pra aposentado nem pensionista. 🚫"
 
 ### 4. "Moro em [cidade fora das atendidas]"
-**Resposta:** "Entendi! E você trabalha em São Paulo ou Guarulhos? Se trabalhar numa dessas cidades, mesmo morando em outra, a gente consegue te atender."
-
-Se não trabalha em SP/Guarulhos e não mora nas cidades atendidas: "Infelizmente não atendemos essa região. Obrigado pelo contato."
+**Resposta:** "Infelizmente não atendemos essa região. A gente só atende São Paulo, Guarulhos, São Bernardo do Campo, Santo André e São Caetano. Obrigado pelo contato!"
 
 ### 5. "Quero mais de R$ 1.000"
 **Resposta:** "Por enquanto, a gente empresta até R$ 1.000. Quer seguir com esse valor?"

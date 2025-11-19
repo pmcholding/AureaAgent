@@ -54,10 +54,14 @@ Por gentileza, selecione uma das opções abaixo para que eu possa te direcionar
 **Se cliente responder opção 2 (Reempréstimo):**
 ```
 Que ótimo te ver novamente! 😊
-Vou te direcionar para um dos nossos consultores que cuidará da sua renovação.
-Um momento, por favor! 💙
+
+Para renovação de empréstimo, por favor entre em contato diretamente com nosso especialista pelo WhatsApp:
+
+📱 *+55 11 96318-1814*
+
+Agradecemos seu contato! 💙
 ```
-*Transferir para atendente humano (Rodrigo) e encerrar o atendimento do bot.*
+*Encerrar o atendimento do bot.*
 
 **Se cliente responder opção 1 (Novo empréstimo), prosseguir para PERGUNTA 01**
 

@@ -121,6 +121,51 @@ Trabalhamos com *empréstimos de R$ 100,00 a R$ 600,00.* Podemos seguir com um v
 ```
 *Aguarde resposta e ajuste o valor.*
 
+**TABELA DE RENDA MÍNIMA NECESSÁRIA:**
+| Valor do Empréstimo | Renda Líquida Mínima |
+|---------------------|----------------------|
+| R$ 100,00           | R$ 1.200,00          |
+| R$ 200,00           | R$ 1.200,00          |
+| R$ 300,00           | R$ 1.200,00          |
+| R$ 400,00           | R$ 1.600,00          |
+| R$ 500,00           | R$ 2.000,00          |
+| R$ 600,00           | R$ 2.400,00          |
+
+**LÓGICA DE ANÁLISE DE RENDA vs VALOR SOLICITADO:**
+
+Ao receber a renda líquida e o valor desejado do cliente, analise:
+
+1. **Calcule o valor máximo liberável** baseado na renda informada:
+   - Renda abaixo de R$ 1.200 → NÃO atende requisito mínimo
+   - Renda de R$ 1.200 a R$ 1.599 → Valor máximo: R$ 300,00
+   - Renda de R$ 1.600 a R$ 1.999 → Valor máximo: R$ 400,00
+   - Renda de R$ 2.000 a R$ 2.399 → Valor máximo: R$ 500,00
+   - Renda de R$ 2.400 ou mais → Valor máximo: R$ 600,00
+
+2. **Compare o valor solicitado com o valor máximo liberável:**
+
+**Se a renda não atende o requisito mínimo (abaixo de R$ 1.200):**
+```
+Obrigado pelas informações! 😊
+
+Infelizmente, para nossos empréstimos é necessário ter uma *renda líquida mínima de R$ 1.200,00.*
+
+No momento não conseguiremos prosseguir com sua solicitação. Agradecemos o contato! 💛
+```
+
+**Se o valor solicitado está ACIMA do permitido pela renda:**
+```
+Obrigado pelas informações! 😊
+
+Analisando sua renda líquida de *{{renda_informada}}*, o valor máximo que podemos liberar para você é de *R$ {{valor_maximo}},00*.
+
+Podemos seguir com esse valor? 💛
+```
+*Aguarde confirmação do cliente antes de prosseguir.*
+
+**Se o valor solicitado está DENTRO do permitido pela renda:**
+Prossiga normalmente para o card de confirmação.
+
 **Se alguma informação estiver faltando ou incompleta:**
 Solicite gentilmente apenas a informação que está faltando.
 

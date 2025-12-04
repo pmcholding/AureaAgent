@@ -23,6 +23,12 @@ The following automation rules trigger actions based on message content. When wr
 
 **Action**: Assigns conversation to Team ID 1 (human agents)
 
+### Rule: Assign to Team 2 - Specialists (ID: 2)
+**Triggers** (any of these phrases in message):
+- "estou encaminhando o seu atendimento para um de nossos especialistas!"
+
+**Action**: Assigns conversation to Team ID 2 (specialists for Autônomo/MEI/Comerciante/Outros)
+
 ### Rule: Disqualified Lead Removal (ID: 9)
 **Triggers** (any of these phrases):
 - "Agradecemos o contato!"

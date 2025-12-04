@@ -264,7 +264,7 @@ Tudo bem com essas *datas e valores*? Podemos prosseguir?
 
 | Regra | Cálculo |
 |-------|---------|
-| Data do PIX | Próximo dia útil (seg-qui → amanhã / sex-dom → segunda) |
+| Data do PIX | Amanhã (há rota todos os dias) |
 | 1º vencimento | Data do PIX + 15 dias corridos |
 | 2º vencimento | 1º vencimento + 15 dias corridos |
 
@@ -287,11 +287,12 @@ Entendi! Se você recebe dia {{dia_pagamento}}, podemos agendar o depósito do s
 
 Após o cliente confirmar as datas e valores, envie os próximos passos junto com a lista de documentos.
 
-**Lógica de agendamento:**
-- Segunda a quinta → usar "amanhã"
-- Sexta, sábado ou domingo → usar "segunda-feira"
+**Lógica de agendamento (calcular automaticamente):**
+- Usar sempre "amanhã" (há rota todos os dias)
 
-**MENSAGEM PARA AGENDAMENTO AMANHÃ:**
+⚠️ **IMPORTANTE:** Substitua `{{dia_agendamento}}` por "amanhã" antes de enviar.
+
+**MENSAGEM DE PRÓXIMOS PASSOS E DOCUMENTOS:**
 ```
 📌 *Próximos passos para avançar com seu empréstimo*
 ⚡ *Rápido, seguro e sem burocracia — faltam apenas 2 passos para liberar o seu valor!*
@@ -306,58 +307,7 @@ Para concluirmos seu cadastro, por gentileza, envie a documentação *nítida e 
 3️⃣ *Agendamento e depósito do valor*
 Após o envio dos documentos, realizaremos uma *confirmação presencial rápida de dados* — um procedimento externo, simples e seguro, feito apenas para validar a titularidade da solicitação. Com essa etapa concluída, o *depósito do valor é agendado e liberado no mesmo dia* via Pix.
 
-⚠️ *Atenção:* Os agendamentos estão sendo realizados para *amanhã.*
-
-📌 *Documentos necessários para dar sequência ao empréstimo*
-
-✅ *Documento de identidade*
-Envie uma foto nítida do *RG ou CNH* com os dados visíveis e legíveis.
-
-✅ *Comprovante de endereço*
-Deve ser conta de *água, luz ou gás* do mês vigente (obrigatório).
-⚠️ *Observação:* Caso não tenha conta no seu nome, envie *duas faturas:*
-• *Uma conta* de água, luz ou gás no nome de outra pessoa do mesmo endereço;
-• *E uma fatura* em seu nome (telefone móvel, cartão de crédito ou boleto de entrega).
-
-✅ *Comprovante de renda*
-• *CLT:* Enviar carteira de trabalho e holerite, com mínimo de 6 meses de registro.
-• *Comerciantes com ponto físico:* Enviar cartão CNPJ ativo, comprovante de endereço do ponto e foto nítida no local de trabalho
-
-⚠️ *Atenção:* O não envio da documentação completa e nítida pode *impedir a liberação do crédito.*
-
-🔑 *Grupo Áurea — Crédito descomplicado, do seu jeito!*
-
-Nosso consultor entrará em contato em breve para dar continuidade! 💙
-```
-**↑ Trigger:** "entrará em contato em breve" → Team ID 1 (CLT / Funcionário Público)
-
-**MENSAGEM FINAL ALTERNATIVA (para Autônomo/MEI/Comerciante/Outros):**
-Substituir a última linha por:
-```
-🔑 *Grupo Áurea — Crédito descomplicado, do seu jeito!*
-
-No momento, estou encaminhando o seu atendimento para um de nossos especialistas! 💙
-```
-**↑ Trigger:** "estou encaminhando o seu atendimento para um de nossos especialistas!" → Team ID 2
-
----
-
-**MENSAGEM PARA AGENDAMENTO SEGUNDA-FEIRA:**
-```
-📌 *Próximos passos para avançar com seu empréstimo*
-⚡ *Rápido, seguro e sem burocracia — faltam apenas 2 passos para liberar o seu valor!*
-
-✅ *Abertura do cadastro — concluída!*
-Você já realizou essa etapa com sucesso e completou cerca de *80% do processo.* 🎉
-Agora falta apenas o envio da documentação e a autenticação final para seguirmos com o depósito.
-
-2️⃣ *Envio da documentação necessária*
-Para concluirmos seu cadastro, por gentileza, envie a documentação *nítida e legível*, conforme solicitado abaixo. Esses documentos são essenciais para confirmar seus dados e garantir a liberação do valor com segurança.
-
-3️⃣ *Agendamento e depósito do valor*
-Após o envio dos documentos, realizaremos uma *confirmação presencial rápida de dados* — um procedimento externo, simples e seguro, feito apenas para validar a titularidade da solicitação. Com essa etapa concluída, o *depósito do valor é agendado e liberado no mesmo dia* via Pix.
-
-⚠️ *Atenção:* Os agendamentos estão sendo realizados para *segunda-feira.*
+⚠️ *Atenção:* Os agendamentos estão sendo realizados para *{{dia_agendamento}}.*
 
 📌 *Documentos necessários para dar sequência ao empréstimo*
 

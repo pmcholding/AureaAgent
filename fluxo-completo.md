@@ -252,6 +252,8 @@ Após o cliente escolher a opção, confirme as datas e valores:
 - 1º vencimento: 06/12 + 15 dias = **21/12**
 - 2º vencimento: 21/12 + 15 dias = **05/01**
 
+⚠️ **IMPORTANTE:** NÃO mostre o raciocínio ou cálculo das datas para o cliente. Apenas envie a mensagem final com as datas já calculadas.
+
 ```
 *OPÇÃO A:*
 ✅ O primeiro vencimento será no dia *{{data_vencimento_1}}*, no valor de *R$ {{valor_juros}}*

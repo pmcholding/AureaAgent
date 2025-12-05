@@ -1,0 +1,261 @@
+{
+  "name": "MAKER - Voting Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "voting",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-entrada",
+      "name": "Webhook Entrada",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "webhookId": "voting-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepara 3 itens idênticos para voting paralelo\nconst input = $input.first().json;\n\nconst items = [];\nfor (let i = 0; i < 3; i++) {\n  items.push({\n    json: {\n      ...input,\n      voting_index: i + 1\n    }\n  });\n}\n\nreturn items;"
+      },
+      "id": "preparar-voting",
+      "name": "Preparar Voting (3x)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 3,
+        "options": {}
+      },
+      "id": "split-batches",
+      "name": "Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [640, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"max_tokens\": 100,\n  \"temperature\": 0.3,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": {{ JSON.stringify($json.system_prompt || \"Você é um classificador. Responda APENAS com uma das opções válidas, sem explicações.\") }}\n    },\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify($json.user_prompt || $json.situacao_informada) }}\n    }\n  ]\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "openai-request",
+      "name": "OpenAI Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [860, 300],
+      "credentials": {
+        "openAiApi": {
+          "id": "SUBSTITUIR_PELO_SEU_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-respostas",
+      "name": "Merge Respostas",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1080, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// VOTING DETERMINÍSTICO - MAKER Framework\n// ========================================\n\nconst respostas = $input.all();\nconst tipo = respostas[0]?.json?.tipo_decisao || 'perfil';\n\n// Extrair classificações das respostas\nconst classificacoes = respostas.map((item, idx) => {\n  try {\n    const content = item.json?.choices?.[0]?.message?.content || '';\n    return content.trim().toUpperCase();\n  } catch (e) {\n    return null;\n  }\n}).filter(c => c !== null);\n\n// Contar votos\nconst votos = {};\nclassificacoes.forEach(c => {\n  votos[c] = (votos[c] || 0) + 1;\n});\n\n// Encontrar vencedor (maioria)\nlet vencedor = null;\nlet maxVotos = 0;\nfor (const [key, count] of Object.entries(votos)) {\n  if (count > maxVotos) {\n    maxVotos = count;\n    vencedor = key;\n  }\n}\n\n// Verificar consenso (2+ concordam)\nconst temConsenso = maxVotos >= 2;\n\n// ========================================\n// FALLBACK TABLES (se não houver consenso)\n// ========================================\n\nconst FALLBACK_PERFIL = {\n  'CLT': 'CLT',\n  'FUNCIONARIO PUBLICO': 'FUNC_PUBLICO',\n  'FUNCIONÁRIO PÚBLICO': 'FUNC_PUBLICO',\n  'AUTONOMO': 'AUTONOMO',\n  'AUTÔNOMO': 'AUTONOMO',\n  'MEI': 'MEI',\n  'COMERCIANTE': 'COMERCIANTE',\n  'MOTORISTA APP': 'INELEGIVEL',\n  'UBER': 'INELEGIVEL',\n  '99': 'INELEGIVEL',\n  'IFOOD': 'INELEGIVEL',\n  'APOSENTADO': 'INELEGIVEL',\n  'PENSIONISTA': 'INELEGIVEL'\n};\n\nconst FALLBACK_RENDA = {\n  calcularValorMaximo: (renda) => {\n    if (renda < 1200) return null;\n    if (renda < 1600) return 300;\n    if (renda < 2000) return 400;\n    if (renda < 2400) return 500;\n    return 600;\n  }\n};\n\n// Aplicar fallback se necessário\nlet resultadoFinal = vencedor;\nlet usouFallback = false;\n\nif (!temConsenso) {\n  usouFallback = true;\n  \n  if (tipo === 'perfil') {\n    // Tentar encontrar na tabela de fallback\n    const situacao = respostas[0]?.json?.situacao_informada?.toUpperCase() || '';\n    for (const [key, value] of Object.entries(FALLBACK_PERFIL)) {\n      if (situacao.includes(key)) {\n        resultadoFinal = value;\n        break;\n      }\n    }\n  } else if (tipo === 'renda') {\n    const renda = parseFloat(respostas[0]?.json?.renda) || 0;\n    resultadoFinal = FALLBACK_RENDA.calcularValorMaximo(renda);\n  }\n}\n\n// ========================================\n// RESULTADO\n// ========================================\n\nreturn [{\n  json: {\n    resultado: resultadoFinal,\n    consenso: temConsenso,\n    votos: votos,\n    total_respostas: classificacoes.length,\n    usou_fallback: usouFallback,\n    classificacoes_brutas: classificacoes,\n    tipo_decisao: tipo\n  }\n}];"
+      },
+      "id": "voting-logic",
+      "name": "Voting Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "consenso-check",
+              "leftValue": "={{ $json.consenso }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-consenso",
+      "name": "Tem Consenso?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1520, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, resultado: $json.resultado, consenso: $json.consenso, votos: $json.votos, usou_fallback: $json.usou_fallback }) }}",
+        "options": {}
+      },
+      "id": "resposta-sucesso",
+      "name": "Resposta Sucesso",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1740, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, resultado: $json.resultado, consenso: false, votos: $json.votos, usou_fallback: true, aviso: 'Sem consenso - usado fallback' }) }}",
+        "options": {}
+      },
+      "id": "resposta-fallback",
+      "name": "Resposta Fallback",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1740, 400]
+    }
+  ],
+  "connections": {
+    "Webhook Entrada": {
+      "main": [
+        [
+          {
+            "node": "Preparar Voting (3x)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Voting (3x)": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge Respostas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Request": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Respostas": {
+      "main": [
+        [
+          {
+            "node": "Voting Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voting Logic": {
+      "main": [
+        [
+          {
+            "node": "Tem Consenso?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tem Consenso?": {
+      "main": [
+        [
+          {
+            "node": "Resposta Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "voting-maker-workflow"
+  },
+  "tags": [
+    {
+      "name": "MAKER",
+      "id": "maker-tag"
+    },
+    {
+      "name": "Voting",
+      "id": "voting-tag"
+    }
+  ]
+}

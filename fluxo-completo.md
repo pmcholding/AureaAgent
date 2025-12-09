@@ -460,11 +460,10 @@ Você tem acesso a uma ferramenta de SQL para gravar o empréstimo como rascunho
 - `contact_id`: ID do contato (disponível nas variáveis: {{ $('Contact').item.json.payload.id }})
 - `cliente_nome`: Nome completo informado pelo cliente
 - `cliente_telefone`: Telefone do cliente (disponível nas variáveis)
+- `cliente_endereco`: Cidade e CEP do cliente (formato: "São Paulo - 01310100")
 - `valor_principal`: Valor do empréstimo solicitado (100, 200, 300, 400, 500 ou 600)
-- `renda_informada`: Renda líquida informada pelo cliente
-- `situacao_profissional`: CLT, Autônomo, MEI, Comerciante, Funcionário Público, etc.
-- `cidade`: Cidade do cliente (obtida via CEP)
-- `cep`: CEP informado pelo cliente
+- `data_recebimento`: Data prevista para o PIX/depósito (formato: YYYY-MM-DD). Normalmente é amanhã, mas pode ser ajustada conforme o dia de pagamento do cliente.
+- `observacoes`: Informações coletadas (renda líquida, situação profissional, tempo de registro se CLT)
 
 **Valores calculados automaticamente pela tabela oficial:**
 
@@ -477,8 +476,13 @@ Você tem acesso a uma ferramenta de SQL para gravar o empréstimo como rascunho
 | R$ 500,00       | R$ 200,00         | R$ 700,00      |
 | R$ 600,00       | R$ 240,00         | R$ 840,00      |
 
+**Campos calculados automaticamente:**
+- `data_solicitacao`: Data de hoje (automático)
+- `proximo_vencimento`: Data do PIX + 15 dias (calculado automaticamente)
+
 **IMPORTANTE:**
 - O status será SEMPRE 'RASCUNHO' - você NÃO pode gravar com outro status
 - Se já existir um empréstimo RASCUNHO para o mesmo contact_id, ele será atualizado
 - Empréstimos com outros status (ANALISE, APROVADA, etc.) NÃO serão modificados
 - Grave o empréstimo ANTES de transferir o atendimento
+- A data_recebimento deve ser a data confirmada com o cliente na ETAPA 4 (Confirmação de Vencimentos)

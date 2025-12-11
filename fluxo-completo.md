@@ -461,9 +461,23 @@ Você tem acesso a uma ferramenta de SQL para gravar o empréstimo como rascunho
 - `cliente_nome`: Nome completo informado pelo cliente
 - `cliente_telefone`: Telefone do cliente (disponível nas variáveis)
 - `cliente_endereco`: Cidade e CEP do cliente (formato: "São Paulo - 01310100")
+- `cep`: CEP do cliente (formato: 00000000 ou 00000-000)
+- `cidade`: Nome da cidade do cliente (São Paulo, Guarulhos, Santo André, São Bernardo do Campo ou São Caetano do Sul)
+- `renda_liquida`: Renda líquida mensal informada pelo cliente (apenas número, sem R$. Exemplo: 2500.00)
+- `situacao_profissional`: Situação profissional do cliente. Valores aceitos:
+  - `CLT` - Trabalhador com carteira assinada
+  - `FUNCIONARIO_PUBLICO` - Funcionário público
+  - `AUTONOMO` - Trabalhador autônomo
+  - `COMERCIANTE` - Comerciante com ponto físico
+  - `MEI` - Microempreendedor Individual
+  - `MOTORISTA_APLICATIVO` - Motorista de aplicativo (não atendido)
+  - `APOSENTADO` - Aposentado (não atendido)
+  - `PENSIONISTA` - Pensionista (não atendido)
+  - `OUTROS` - Outras situações
+- `tempo_registro_clt`: Tempo de registro CLT em meses (apenas se situação for CLT, senão use NULL. Ex: 12 para 1 ano)
 - `valor_principal`: Valor do empréstimo solicitado (100, 200, 300, 400, 500 ou 600)
 - `data_recebimento`: Data prevista para o PIX/depósito (formato: YYYY-MM-DD). Normalmente é amanhã, mas pode ser ajustada conforme o dia de pagamento do cliente.
-- `observacoes`: Informações coletadas (renda líquida, situação profissional, tempo de registro se CLT)
+- `observacoes`: Observações adicionais (informações complementares que não se encaixam nos outros campos)
 
 **Valores calculados automaticamente pela tabela oficial:**
 
@@ -486,3 +500,4 @@ Você tem acesso a uma ferramenta de SQL para gravar o empréstimo como rascunho
 - Empréstimos com outros status (ANALISE, APROVADA, etc.) NÃO serão modificados
 - Grave o empréstimo ANTES de transferir o atendimento
 - A data_recebimento deve ser a data confirmada com o cliente na ETAPA 4 (Confirmação de Vencimentos)
+- Para `situacao_profissional`, use EXATAMENTE um dos valores listados acima (em maiúsculas, sem acentos)

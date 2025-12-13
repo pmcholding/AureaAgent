@@ -5,7 +5,8 @@
         "rule": {
           "interval": [
             {
-              "field": "hours"
+              "field": "minutes",
+              "minutesInterval": 5
             }
           ]
         }
@@ -17,12 +18,12 @@
         -96
       ],
       "id": "7eee9094-628e-4717-bf0b-bf7c27a56729",
-      "name": "Schedule Trigger - A cada 1 hora"
+      "name": "Schedule Trigger - A cada 5 minutos"
     },
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "WITH ultima_mensagem_nao_resgate AS (\n    SELECT DISTINCT ON (m.conversation_id)\n      m.conversation_id,\n      m.id as message_id,\n      m.created_at,\n      m.sender_type,\n      m.sender_id,\n      m.message_type,\n      m.content\n    FROM messages m\n    WHERE m.message_type IN (0, 1)\n      -- Exclui mensagens de resgate já na fonte\n      AND NOT (\n        m.content ILIKE '%Sim → para prosseguir com um especialista%'\n        OR m.content ILIKE '%para prosseguir com um especialista%'\n      )\n    ORDER BY m.conversation_id, m.created_at DESC\n  ),\n  conversas_theo_aguardando AS (\n    SELECT\n      c.id as conversation_id,\n      c.account_id,\n      c.inbox_id,\n      c.contact_id,\n      c.cached_label_list,\n      c.updated_at,\n      c.contact_inbox_id,\n      c.display_id,\n      c.assignee_id,\n      um.created_at as ultima_msg_theo_at,\n      um.content as ultima_msg_content,\n      EXTRACT(EPOCH FROM (NOW() - um.created_at))/3600 as horas_desde_ultima_msg_theo,\n      CASE\n        WHEN EXTRACT(EPOCH FROM (NOW() - um.created_at))/3600 BETWEEN 1.9 AND 2.8 THEN '2_horas'\n        WHEN EXTRACT(EPOCH FROM (NOW() - um.created_at))/3600 BETWEEN 3.9 AND 4.8 THEN '4_horas'\n        ELSE 'fora_do_intervalo'\n      END as categoria_tempo\n    FROM conversations c\n    INNER JOIN ultima_mensagem_nao_resgate um ON c.id = um.conversation_id\n    WHERE c.status = 0\n      AND c.assignee_id IS NULL\n      AND c.team_id IS NULL\n      AND um.sender_type = 'User'\n      AND um.sender_id = 16\n      AND um.message_type = 1\n      AND (\n        (EXTRACT(EPOCH FROM (NOW() - um.created_at))/3600 BETWEEN 1.9 AND 2.8)\n        OR\n        (EXTRACT(EPOCH FROM (NOW() - um.created_at))/3600 BETWEEN 3.9 AND 4.8)\n      )\n  )\n  SELECT\n    cta.*\n  FROM conversas_theo_aguardando cta\n  WHERE NOT EXISTS (\n    SELECT 1 FROM messages m\n    WHERE m.conversation_id = cta.conversation_id\n      AND m.message_type = 1\n      AND m.created_at > cta.ultima_msg_theo_at\n  )\n  ORDER BY cta.horas_desde_ultima_msg_theo ASC\n  LIMIT 50",
+        "query": "WITH ultima_mensagem_nao_resgate AS (\n    SELECT DISTINCT ON (m.conversation_id)\n      m.conversation_id,\n      m.id as message_id,\n      m.created_at,\n      m.sender_type,\n      m.sender_id,\n      m.message_type,\n      m.content\n    FROM messages m\n    WHERE m.message_type IN (0, 1)\n      -- Exclui mensagens de resgate já na fonte\n      AND NOT (\n        m.content ILIKE '%Sim → para prosseguir com um especialista%'\n        OR m.content ILIKE '%para prosseguir com um especialista%'\n        OR m.content ILIKE '%Seguir → para continuar com um especialista%'\n        OR m.content ILIKE '%Encerrar → para finalizar o atendimento%'\n      )\n    ORDER BY m.conversation_id, m.created_at DESC\n  ),\n  conversas_theo_aguardando AS (\n    SELECT\n      c.id as conversation_id,\n      c.account_id,\n      c.inbox_id,\n      c.contact_id,\n      c.cached_label_list,\n      c.updated_at,\n      c.contact_inbox_id,\n      c.display_id,\n      c.assignee_id,\n      ct.phone_number as contact_phone,\n      um.created_at as ultima_msg_theo_at,\n      um.content as ultima_msg_content,\n      EXTRACT(EPOCH FROM (NOW() - um.created_at))/60 as minutos_desde_ultima_msg_theo,\n      CASE\n        WHEN EXTRACT(EPOCH FROM (NOW() - um.created_at))/60 BETWEEN 14 AND 20 THEN '15_minutos'\n        WHEN EXTRACT(EPOCH FROM (NOW() - um.created_at))/60 BETWEEN 115 AND 130 THEN '2_horas'\n        ELSE 'fora_do_intervalo'\n      END as categoria_tempo\n    FROM conversations c\n    INNER JOIN ultima_mensagem_nao_resgate um ON c.id = um.conversation_id\n    LEFT JOIN contacts ct ON c.contact_id = ct.id\n    WHERE c.status = 0\n      AND c.assignee_id IS NULL\n      AND c.team_id IS NULL\n      AND um.sender_type = 'User'\n      AND um.sender_id = 16\n      AND um.message_type = 1\n      AND (\n        (EXTRACT(EPOCH FROM (NOW() - um.created_at))/60 BETWEEN 14 AND 20)\n        OR\n        (EXTRACT(EPOCH FROM (NOW() - um.created_at))/60 BETWEEN 115 AND 130)\n      )\n  )\n  SELECT\n    cta.*\n  FROM conversas_theo_aguardando cta\n  WHERE NOT EXISTS (\n    SELECT 1 FROM messages m\n    WHERE m.conversation_id = cta.conversation_id\n      AND m.message_type = 1\n      AND m.created_at > cta.ultima_msg_theo_at\n  )\n  ORDER BY cta.minutos_desde_ultima_msg_theo ASC\n  LIMIT 50",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
@@ -69,7 +70,7 @@
                   {
                     "id": "d960d499-6da2-4997-9747-b4cb310982c6",
                     "leftValue": "={{ $json.categoria_tempo }}",
-                    "rightValue": "2_horas",
+                    "rightValue": "15_minutos",
                     "operator": {
                       "type": "string",
                       "operation": "equals",
@@ -80,7 +81,7 @@
                 "combinator": "and"
               },
               "renameOutput": true,
-              "outputKey": "2 horas"
+              "outputKey": "15 minutos"
             },
             {
               "conditions": {
@@ -93,7 +94,7 @@
                 "conditions": [
                   {
                     "leftValue": "={{ $json.categoria_tempo }}",
-                    "rightValue": "4_horas",
+                    "rightValue": "2_horas",
                     "operator": {
                       "type": "string",
                       "operation": "equals"
@@ -104,7 +105,7 @@
                 "combinator": "and"
               },
               "renameOutput": true,
-              "outputKey": "4 horas"
+              "outputKey": "2 horas"
             }
           ]
         },
@@ -151,7 +152,7 @@
         -192
       ],
       "id": "948a573e-ad67-4f98-a4ee-e292afd6fdbc",
-      "name": "Mensagem 2 Horas",
+      "name": "Mensagem 15 Minutos",
       "credentials": {
         "httpHeaderAuth": {
           "id": "tr56s7v9Vbai5IBE",
@@ -170,7 +171,7 @@
           "parameters": [
             {
               "name": "content",
-              "value": "Oi, tudo bem? 😊\n\nVejo que você não retornou ainda. Queria saber se ainda tem interesse no empréstimo ou se surgiu alguma dúvida que posso esclarecer.\n\nLembrando que estamos aqui para te ajudar com empréstimos de *até R$ 600,00* e atendemos *São Paulo, Guarulhos, Santo André, São Bernardo do Campo e São Caetano do Sul.* 📍\n\nCaso ainda tenha interesse, é só me responder e continuamos de onde paramos! 💙"
+              "value": "Você gostaria de seguir com o processo, ou prefere que eu encerre o atendimento por agora?\n\nPor favor, responda:\n*Seguir* → para continuar com um especialista\n*Encerrar* → para finalizar o atendimento"
             },
             {
               "name": "message_type",
@@ -191,17 +192,109 @@
         0
       ],
       "id": "eace2bc0-3ada-4e89-9d66-e2f16db2090d",
-      "name": "Mensagem 4 Horas",
+      "name": "Mensagem 2 Horas",
       "credentials": {
         "httpHeaderAuth": {
           "id": "tr56s7v9Vbai5IBE",
           "name": "Chatwoot - Theo Aurea"
         }
       }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "n8n_chat_histories_aurea",
+          "mode": "list",
+          "cachedResultName": "n8n_chat_histories_aurea"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "session_id": "={{ $('Buscar Conversas Pausadas').item.json.contact_phone }}",
+            "message": "={\"type\": \"ai\", \"content\": \"Estamos com um alto volume de atendimentos diários e quero garantir que você conheça nosso crédito sem taxas ou antecipações, com o primeiro pagamento só em 15 dias. Posso te transferir para um especialista humano agora para você contratar! Por favor, responda: Sim → para prosseguir com um especialista Não → para encerrar o atendimento\", \"additional_kwargs\": {}, \"response_metadata\": {}}"
+          },
+          "matchingColumns": ["id"],
+          "schema": [
+            {"id": "id", "displayName": "id", "required": false, "defaultMatch": true, "display": true, "type": "number", "canBeUsedToMatch": true, "removed": true},
+            {"id": "session_id", "displayName": "session_id", "required": true, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true},
+            {"id": "message", "displayName": "message", "required": true, "defaultMatch": false, "display": true, "type": "object", "canBeUsedToMatch": true}
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        480,
+        -192
+      ],
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Salvar Historico IA - 15min",
+      "credentials": {
+        "postgres": {
+          "id": "IT0NoFEDEFya6oUV",
+          "name": "Cordex.ai - Chatwoot"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "n8n_chat_histories_aurea",
+          "mode": "list",
+          "cachedResultName": "n8n_chat_histories_aurea"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "session_id": "={{ $('Buscar Conversas Pausadas').item.json.contact_phone }}",
+            "message": "={\"type\": \"ai\", \"content\": \"Você gostaria de seguir com o processo, ou prefere que eu encerre o atendimento por agora? Por favor, responda: Seguir → para continuar com um especialista Encerrar → para finalizar o atendimento\", \"additional_kwargs\": {}, \"response_metadata\": {}}"
+          },
+          "matchingColumns": ["id"],
+          "schema": [
+            {"id": "id", "displayName": "id", "required": false, "defaultMatch": true, "display": true, "type": "number", "canBeUsedToMatch": true, "removed": true},
+            {"id": "session_id", "displayName": "session_id", "required": true, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true},
+            {"id": "message", "displayName": "message", "required": true, "defaultMatch": false, "display": true, "type": "object", "canBeUsedToMatch": true}
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        480,
+        0
+      ],
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "name": "Salvar Historico IA - 2h",
+      "credentials": {
+        "postgres": {
+          "id": "IT0NoFEDEFya6oUV",
+          "name": "Cordex.ai - Chatwoot"
+        }
+      },
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
-    "Schedule Trigger - A cada 1 hora": {
+    "Schedule Trigger - A cada 5 minutos": {
       "main": [
         [
           {
@@ -239,21 +332,32 @@
       "main": [
         [
           {
-            "node": "Mensagem 2 Horas",
+            "node": "Mensagem 15 Minutos",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Mensagem 4 Horas",
+            "node": "Mensagem 2 Horas",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Mensagem 2 Horas": {
+    "Mensagem 15 Minutos": {
+      "main": [
+        [
+          {
+            "node": "Salvar Historico IA - 15min",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salvar Historico IA - 15min": {
       "main": [
         [
           {
@@ -264,7 +368,18 @@
         ]
       ]
     },
-    "Mensagem 4 Horas": {
+    "Mensagem 2 Horas": {
+      "main": [
+        [
+          {
+            "node": "Salvar Historico IA - 2h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salvar Historico IA - 2h": {
       "main": [
         [
           {

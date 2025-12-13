@@ -1,13 +1,11 @@
 {
-  "name": "Resgate de Conversas - Grupo Áurea",
   "nodes": [
     {
       "parameters": {
         "rule": {
           "interval": [
             {
-              "field": "hours",
-              "hoursInterval": 1
+              "field": "hours"
             }
           ]
         }
@@ -15,25 +13,25 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -560,
-        0
+        -736,
+        -96
       ],
-      "id": "884b7940-33b0-41c5-b99c-abb6cc29e227",
+      "id": "7eee9094-628e-4717-bf0b-bf7c27a56729",
       "name": "Schedule Trigger - A cada 1 hora"
     },
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "WITH ultima_mensagem_conversa AS (\n  SELECT DISTINCT ON (m.conversation_id)\n    m.conversation_id,\n    m.id as message_id,\n    m.created_at,\n    m.sender_type,\n    m.sender_id,\n    m.message_type,\n    m.content\n  FROM messages m\n  WHERE m.message_type IN (0, 1)  -- incoming ou outgoing apenas\n  ORDER BY m.conversation_id, m.created_at DESC\n),\nconversas_theo_aguardando AS (\n  SELECT \n    c.id as conversation_id,\n    c.account_id,\n    c.inbox_id,\n    c.contact_id,\n    c.cached_label_list,\n    c.updated_at,\n    c.contact_inbox_id,\n    c.display_id,\n    c.assignee_id,\n    um.created_at as ultima_msg_theo_at,\n    um.content as ultima_msg_content,\n    EXTRACT(EPOCH FROM (NOW() - um.created_at))/3600 as horas_desde_ultima_msg_theo,\n    CASE \n      WHEN EXTRACT(EPOCH FROM (NOW() - um.created_at))/3600 BETWEEN 2 AND 2.5 THEN '2_horas'\n      WHEN EXTRACT(EPOCH FROM (NOW() - um.created_at))/3600 BETWEEN 4 AND 4.5 THEN '4_horas'\n      ELSE 'fora_do_intervalo'\n    END as categoria_tempo\n  FROM conversations c\n  INNER JOIN ultima_mensagem_conversa um ON c.id = um.conversation_id\n  WHERE c.status = 0  -- conversa aberta\n    AND c.assignee_id IS NULL  -- não atribuída a ninguém\n    AND um.sender_type = 'User'  -- última mensagem enviada por User (bot)\n    AND um.sender_id = 16  -- Théo (sender_id = 16)\n    AND um.message_type = 1  -- outgoing\n    AND (\n      (EXTRACT(EPOCH FROM (NOW() - um.created_at))/3600 BETWEEN 2 AND 2.5)\n      OR \n      (EXTRACT(EPOCH FROM (NOW() - um.created_at))/3600 BETWEEN 4 AND 4.5)\n    )\n)\nSELECT \n  cta.*\nFROM conversas_theo_aguardando cta\nWHERE NOT EXISTS (\n  SELECT 1 FROM messages m \n  WHERE m.conversation_id = cta.conversation_id \n    AND m.message_type = 1  -- outgoing\n    AND m.created_at > cta.ultima_msg_theo_at\n    AND (\n      m.content ILIKE '%Percebi que iniciamos uma conversa%'\n      OR m.content ILIKE '%você não retornou ainda%'\n      OR m.content ILIKE '%ainda tem interesse em prosseguir%'\n    )\n)\nORDER BY cta.horas_desde_ultima_msg_theo ASC\nLIMIT 50",
+        "query": "WITH ultima_mensagem_nao_resgate AS (\n    SELECT DISTINCT ON (m.conversation_id)\n      m.conversation_id,\n      m.id as message_id,\n      m.created_at,\n      m.sender_type,\n      m.sender_id,\n      m.message_type,\n      m.content\n    FROM messages m\n    WHERE m.message_type IN (0, 1)\n      -- Exclui mensagens de resgate já na fonte\n      AND NOT (\n        m.content ILIKE '%Sim → para prosseguir com um especialista%'\n        OR m.content ILIKE '%para prosseguir com um especialista%'\n      )\n    ORDER BY m.conversation_id, m.created_at DESC\n  ),\n  conversas_theo_aguardando AS (\n    SELECT\n      c.id as conversation_id,\n      c.account_id,\n      c.inbox_id,\n      c.contact_id,\n      c.cached_label_list,\n      c.updated_at,\n      c.contact_inbox_id,\n      c.display_id,\n      c.assignee_id,\n      um.created_at as ultima_msg_theo_at,\n      um.content as ultima_msg_content,\n      EXTRACT(EPOCH FROM (NOW() - um.created_at))/3600 as horas_desde_ultima_msg_theo,\n      CASE\n        WHEN EXTRACT(EPOCH FROM (NOW() - um.created_at))/3600 BETWEEN 1.9 AND 2.8 THEN '2_horas'\n        WHEN EXTRACT(EPOCH FROM (NOW() - um.created_at))/3600 BETWEEN 3.9 AND 4.8 THEN '4_horas'\n        ELSE 'fora_do_intervalo'\n      END as categoria_tempo\n    FROM conversations c\n    INNER JOIN ultima_mensagem_nao_resgate um ON c.id = um.conversation_id\n    WHERE c.status = 0\n      AND c.assignee_id IS NULL\n      AND c.team_id IS NULL\n      AND um.sender_type = 'User'\n      AND um.sender_id = 16\n      AND um.message_type = 1\n      AND (\n        (EXTRACT(EPOCH FROM (NOW() - um.created_at))/3600 BETWEEN 1.9 AND 2.8)\n        OR\n        (EXTRACT(EPOCH FROM (NOW() - um.created_at))/3600 BETWEEN 3.9 AND 4.8)\n      )\n  )\n  SELECT\n    cta.*\n  FROM conversas_theo_aguardando cta\n  WHERE NOT EXISTS (\n    SELECT 1 FROM messages m\n    WHERE m.conversation_id = cta.conversation_id\n      AND m.message_type = 1\n      AND m.created_at > cta.ultima_msg_theo_at\n  )\n  ORDER BY cta.horas_desde_ultima_msg_theo ASC\n  LIMIT 50",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -336,
-        0
+        -512,
+        -96
       ],
-      "id": "c7fe6bad-770e-4c1f-903f-94ee99cc5cdf",
+      "id": "dca87920-1156-4ebb-9dd5-41a17d35cf3a",
       "name": "Buscar Conversas Pausadas",
       "credentials": {
         "postgres": {
@@ -49,10 +47,10 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        -112,
-        0
+        -288,
+        -96
       ],
-      "id": "8bd982a6-00fe-426f-8b06-edcd760b7a2a",
+      "id": "2d82bc2a-5da0-4839-abcf-80116adff7b4",
       "name": "Loop Conversas"
     },
     {
@@ -115,16 +113,16 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.3,
       "position": [
-        112,
-        0
+        0,
+        -192
       ],
-      "id": "7dc4411d-5b89-4c51-957c-051d4bc9a8c9",
+      "id": "a4b6f60c-6d7d-4bd0-9d1d-abf963d69579",
       "name": "Switch por Tempo"
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://chat.doutorai.com.br/api/v1/accounts/{{ $json.account_id }}/conversations/{{ $json.display_id }}/messages",
+        "url": "=https://app.doutorai.com.br/api/v1/accounts/{{ $json.account_id }}/conversations/{{ $json.display_id }}/messages",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
@@ -132,7 +130,7 @@
           "parameters": [
             {
               "name": "content",
-              "value": "Olá! 👋\n\nPercebi que iniciamos uma conversa há pouco tempo e gostaria de saber se você ainda tem interesse em prosseguir com a solicitação do empréstimo. 😊\n\nEstou aqui para te ajudar! Caso tenha ficado alguma dúvida ou precise de alguma informação adicional, é só me chamar.\n\nPodemos continuar? 💙"
+              "value": "Estamos com um alto volume de atendimentos diários e quero garantir que você conheça nosso *crédito sem taxas ou antecipações*, com o primeiro pagamento *só em 15 dias*. Posso te transferir para um especialista humano agora para você contratar! 💙\n\nPor favor, responda:\n*Sim* → para prosseguir com um especialista\n*Não* → para encerrar o atendimento"
             },
             {
               "name": "message_type",
@@ -149,22 +147,22 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        416,
-        -96
+        240,
+        -192
       ],
-      "id": "7bec6a69-0d1d-4b25-83a6-b2546f6aa1ef",
+      "id": "948a573e-ad67-4f98-a4ee-e292afd6fdbc",
       "name": "Mensagem 2 Horas",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "tjFhPKxprBCR6K76",
-          "name": "Chatwoot - Flora"
+          "id": "tr56s7v9Vbai5IBE",
+          "name": "Chatwoot - Theo Aurea"
         }
       }
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://chat.doutorai.com.br/api/v1/accounts/{{ $json.account_id }}/conversations/{{ $json.display_id }}/messages",
+        "url": "=https://app.doutorai.com.br/api/v1/accounts/{{ $json.account_id }}/conversations/{{ $json.display_id }}/messages",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
@@ -172,7 +170,7 @@
           "parameters": [
             {
               "name": "content",
-              "value": "Oi, tudo bem? 😊\n\nVejo que você não retornou ainda. Queria saber se ainda tem interesse no empréstimo ou se surgiu alguma dúvida que posso esclarecer.\n\nLembrando que estamos aqui para te ajudar com empréstimos de *até R$ 1.000,00* e atendemos *São Paulo, Guarulhos, Santo André, São Bernardo do Campo e São Caetano do Sul.* 📍\n\nCaso ainda tenha interesse, é só me responder e continuamos de onde paramos! 💙\n\nSe preferir, também posso encaminhar seu atendimento para um dos nossos consultores. 😊"
+              "value": "Oi, tudo bem? 😊\n\nVejo que você não retornou ainda. Queria saber se ainda tem interesse no empréstimo ou se surgiu alguma dúvida que posso esclarecer.\n\nLembrando que estamos aqui para te ajudar com empréstimos de *até R$ 600,00* e atendemos *São Paulo, Guarulhos, Santo André, São Bernardo do Campo e São Caetano do Sul.* 📍\n\nCaso ainda tenha interesse, é só me responder e continuamos de onde paramos! 💙"
             },
             {
               "name": "message_type",
@@ -189,56 +187,17 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        416,
-        96
+        240,
+        0
       ],
-      "id": "82d19aa9-ccb7-4023-acf2-e4a5387ce7af",
+      "id": "eace2bc0-3ada-4e89-9d66-e2f16db2090d",
       "name": "Mensagem 4 Horas",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "tjFhPKxprBCR6K76",
-          "name": "Chatwoot - Flora"
+          "id": "tr56s7v9Vbai5IBE",
+          "name": "Chatwoot - Theo Aurea"
         }
       }
-    },
-    {
-      "parameters": {
-        "amount": 3,
-        "unit": "seconds"
-      },
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        656,
-        -96
-      ],
-      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-      "name": "Aguardar 3s (2h)"
-    },
-    {
-      "parameters": {
-        "amount": 3,
-        "unit": "seconds"
-      },
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        656,
-        96
-      ],
-      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
-      "name": "Aguardar 3s (4h)"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        896,
-        0
-      ],
-      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
-      "name": "Voltar ao Loop"
     }
   ],
   "connections": {
@@ -266,13 +225,7 @@
     },
     "Loop Conversas": {
       "main": [
-        [
-          {
-            "node": "Voltar ao Loop",
-            "type": "main",
-            "index": 0
-          }
-        ],
+        [],
         [
           {
             "node": "Switch por Tempo",
@@ -304,28 +257,6 @@
       "main": [
         [
           {
-            "node": "Aguardar 3s (2h)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Mensagem 4 Horas": {
-      "main": [
-        [
-          {
-            "node": "Aguardar 3s (4h)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Aguardar 3s (2h)": {
-      "main": [
-        [
-          {
             "node": "Loop Conversas",
             "type": "main",
             "index": 0
@@ -333,7 +264,7 @@
         ]
       ]
     },
-    "Aguardar 3s (4h)": {
+    "Mensagem 4 Horas": {
       "main": [
         [
           {
@@ -346,12 +277,7 @@
     }
   },
   "pinData": {},
-  "settings": {
-    "executionOrder": "v1"
-  },
-  "staticData": null,
-  "tags": [],
-  "triggerCount": 1,
-  "updatedAt": "2025-01-10T00:00:00.000Z",
-  "versionId": "1"
+  "meta": {
+    "instanceId": "0dff2809c326d67264ac89b11c62a81c0e33c81a110b2979fd152608e157400d"
+  }
 }

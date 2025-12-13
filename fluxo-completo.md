@@ -410,6 +410,57 @@ Se a cidade retornada for diferente dessas, informe que não atendemos a região
 
 ---
 
+### MENSAGENS DE RESGATE (INATIVIDADE) - WORKFLOW AUTOMÁTICO
+
+O sistema envia mensagens automáticas quando o cliente para de responder:
+
+#### Mensagem de Resgate 1 (após 15 minutos de inatividade)
+```
+Estamos com um alto volume de atendimentos diários e quero garantir que você conheça nosso *crédito sem taxas ou antecipações*, com o primeiro pagamento *só em 15 dias*. Posso te transferir para um especialista humano agora para você contratar! 💙
+
+Por favor, responda:
+*Sim* → para prosseguir com um especialista
+*Não* → para encerrar o atendimento
+```
+
+**Respostas esperadas:**
+- **"Sim"** → Transferir para Team 1 (atendentes humanos):
+  ```
+  Perfeito! Nosso consultor entrará em contato em breve para dar continuidade! 💙
+  ```
+  ↑ Trigger: "entrará em contato em breve" → Team ID 1
+
+- **"Não"** → Resolver conversa (lead removal):
+  ```
+  Tudo bem! Agradecemos o contato! Caso mude de ideia, estamos à disposição. 💛
+  ```
+  ↑ Trigger: "Agradecemos o contato!" → Rule ID 9
+
+#### Mensagem de Resgate 2 (após 2 horas de inatividade)
+Enviada se o cliente não respondeu à mensagem de resgate 1:
+```
+Você gostaria de seguir com o processo, ou prefere que eu encerre o atendimento por agora?
+
+Por favor, responda:
+*Seguir* → para continuar com um especialista
+*Encerrar* → para finalizar o atendimento
+```
+
+**Respostas esperadas:**
+- **"Seguir"** → Transferir para Team 1 (atendentes humanos):
+  ```
+  Perfeito! Nosso consultor entrará em contato em breve para dar continuidade! 💙
+  ```
+  ↑ Trigger: "entrará em contato em breve" → Team ID 1
+
+- **"Encerrar"** → Resolver conversa (lead removal):
+  ```
+  Tudo bem! Agradecemos o contato! Caso mude de ideia, estamos à disposição. 💛
+  ```
+  ↑ Trigger: "Agradecemos o contato!" → Rule ID 9
+
+---
+
 ### DIRETRIZES IMPORTANTES
 
 **SEMPRE:**

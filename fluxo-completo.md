@@ -177,9 +177,22 @@ Qual seria a opção desejada?
 Após o cliente escolher a opção, calcule as datas e envie o template abaixo com os valores preenchidos.
 
 #### Fórmulas de Data
-- Data do PIX = amanhã
+- **Data do PIX:**
+  - Se hoje é **segunda a quinta** → PIX no **dia seguinte**
+  - Se hoje é **sexta, sábado ou domingo** → PIX na **segunda-feira**
 - 1º vencimento = PIX + 15 dias corridos
 - 2º vencimento = 1º vencimento + 15 dias corridos
+
+**Exemplos de cálculo da Data do PIX:**
+| Dia da solicitação | Data do PIX |
+|--------------------|-------------|
+| Segunda-feira      | Terça-feira |
+| Terça-feira        | Quarta-feira |
+| Quarta-feira       | Quinta-feira |
+| Quinta-feira       | Sexta-feira |
+| Sexta-feira        | Segunda-feira |
+| Sábado             | Segunda-feira |
+| Domingo            | Segunda-feira |
 
 #### Template de Resposta (envie apenas isto, com datas e valores preenchidos)
 

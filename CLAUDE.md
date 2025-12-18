@@ -41,3 +41,9 @@ The following automation rules trigger actions based on message content. When wr
 - "Vou te direcionar para um dos nossos consultores que cuidará da sua renovação"
 
 **Action**: Assigns conversation directly to Agent ID 17
+
+### Rule: Payment/Collection Redirect (ID: 11)
+**Triggers** (any of these phrases):
+- "procure falar com o seu consultor"
+
+**Action**: Assigns conversation to Team ID 5 (cobrança)

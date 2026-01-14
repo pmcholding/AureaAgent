@@ -108,7 +108,7 @@
                 "genericAuthType": "httpHeaderAuth",
                 "sendBody": true,
                 "specifyBody": "json",
-                "jsonBody": "{\n  \"message_type\": \"outgoing\",\n  \"attachments\": [\n    {\n      \"file_type\": \"audio\",\n      \"data_url\": \"https://github.com/pmcholding/AureaAgent/raw/refs/heads/main/audio_docs.ogg\"\n    }\n  ]\n}",
+                "jsonBody": "{\n  \"message_type\": \"outgoing\",\n  \"attachments\": [\n    {\n      \"file_type\": \"audio\",\n      \"data_url\": \"https://github.com/pmcholding/AureaAgent/raw/refs/heads/main/audio_docs.mp3\"\n    }\n  ]\n}",
                 "options": {}
             },
             "type": "n8n-nodes-base.httpRequestTool",

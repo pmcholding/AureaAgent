@@ -102,29 +102,36 @@
             "parameters": {
                 "descriptionType": "manual",
                 "toolDescription": "Envia o áudio com instruções de documentos para o cliente. Use esta ferramenta APÓS enviar o resumo final e a mensagem de encaminhamento para o consultor. Esta ferramenta envia um áudio explicando quais documentos o cliente precisa enviar (RG/CNH e comprovante de endereço). Após usar esta ferramenta, responda com a mensagem de texto detalhando os documentos necessários.",
-                "method": "POST",
-                "url": "=https://app.doutorai.com.br/api/v1/accounts/{{ $('Globals Set').first().json.account_id }}/conversations/{{ $('Globals Set').first().json.conversation_id }}/messages",
-                "authentication": "genericCredentialType",
-                "genericAuthType": "httpHeaderAuth",
-                "sendBody": true,
-                "specifyBody": "json",
-                "jsonBody": "{\n  \"message_type\": \"outgoing\",\n  \"attachments\": [\n    {\n      \"file_type\": \"audio\",\n      \"data_url\": \"https://github.com/pmcholding/AureaAgent/raw/refs/heads/main/audio_docs.mp3\"\n    }\n  ]\n}",
-                "options": {}
+                "workflowId": {
+                    "__rl": true,
+                    "value": "__WORKFLOW_ID_ENVIAR_AUDIO__",
+                    "mode": "id"
+                },
+                "fields": {
+                    "values": [
+                        {
+                            "name": "audio_url",
+                            "stringValue": "=https://github.com/pmcholding/AureaAgent/raw/refs/heads/main/audio_docs.mp3"
+                        },
+                        {
+                            "name": "account_id",
+                            "stringValue": "={{ $('Globals Set').first().json.account_id }}"
+                        },
+                        {
+                            "name": "conversation_id",
+                            "stringValue": "={{ $('Globals Set').first().json.conversation_id }}"
+                        }
+                    ]
+                }
             },
-            "type": "n8n-nodes-base.httpRequestTool",
-            "typeVersion": 4.2,
+            "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "typeVersion": 2.0,
             "position": [
                 6384,
                 1152
             ],
             "id": "enviar-audio-docs-tool",
-            "name": "Enviar Áudio de Documentos",
-            "credentials": {
-                "httpHeaderAuth": {
-                    "id": "tr56s7v9Vbai5IBE",
-                    "name": "Chatwoot - Theo Aurea"
-                }
-            }
+            "name": "Enviar Áudio de Documentos"
         }
     ],
     "connections": {

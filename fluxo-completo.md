@@ -423,7 +423,7 @@ Fique tranquilo(a), você já está na fila de atendimento e será atendido(a) e
 **⚠️ IMPORTANTE:** Esta etapa é executada automaticamente pelo workflow n8n após 2 minutos do envio do resumo.
 
 **Áudio enviado automaticamente:**
-URL: `https://github.com/pmcholding/AureaAgent/raw/refs/heads/main/audio_docs.ogg`
+URL: `https://github.com/pmcholding/AureaAgent/raw/refs/heads/main/audio_docs.mp3`
 
 **Mensagem enviada junto com o áudio:**
 ```

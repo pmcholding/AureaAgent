@@ -1,0 +1,197 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "sessionIdType": "customKey",
+                "sessionKey": "={{ $('Globals Set').first().json.phone }}",
+                "tableName": "n8n_chat_histories_aurea",
+                "contextWindowLength": 10
+            },
+            "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+            "typeVersion": 1.3,
+            "position": [
+                5808,
+                1200
+            ],
+            "id": "3bb56784-6f06-438e-8339-372036b4fbea",
+            "name": "Postgres Chat Memory3",
+            "credentials": {
+                "postgres": {
+                    "id": "IT0NoFEDEFya6oUV",
+                    "name": "Cordex.ai - Chatwoot"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "=mensagem a ser respondida: {{ $json.message }}\n\n## 📅 VARIÁVEIS DINÂMICAS\n**Data atual:** {{ $now.format('FFFF') }}\n",
+                "options": {
+                    "systemMessage": "=## 📅 VARIÁVEIS DINÂMICAS\n**Data atual:** {{ $now.format('FFFF') }}\n**Nome do cliente:** {{ $('Contact').first().json.payload.name }}\n**Contact_id:** {{ $json.contact_id }}\n**Phone:** {{ $json.phone }}\n**Account_id:** {{ $('Globals Set').first().json.account_id }}\n**Conversation_id:** {{ $('Globals Set').first().json.conversation_id }}\n\n{{ $('HTTP Request2').first().json.data }}"
+                }
+            },
+            "id": "e790cd73-a06d-4b3d-87f2-6022fca2b35d",
+            "name": "Atendente2",
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 1.6,
+            "position": [
+                5776,
+                960
+            ],
+            "retryOnFail": true
+        },
+        {
+            "parameters": {
+                "options": {
+                    "maxRetries": 4
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+            "typeVersion": 1,
+            "position": [
+                5632,
+                1200
+            ],
+            "id": "b6fe42fa-b550-474f-bd4a-69cf585d2d7a",
+            "name": "DeepSeek Chat Model",
+            "credentials": {
+                "deepSeekApi": {
+                    "id": "U88eY2DLNGSI6jYp",
+                    "name": "DeepSeek account 2"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "url": "=https://viacep.com.br/ws/{{ $fromAI('cep', 'CEP informado pelo cliente. Deve conter apenas números, sem traço ou espaços. Exemplo: 01310100', 'string') }}/json/",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequestTool",
+            "typeVersion": 4.3,
+            "position": [
+                5968,
+                1200
+            ],
+            "id": "cfca40f7-f05d-47c1-9517-f13ff46cee81",
+            "name": "Pesquisa CEP"
+        },
+        {
+            "parameters": {
+                "descriptionType": "manual",
+                "toolDescription": "Grava ou atualiza um empréstimo como RASCUNHO no banco de dados. Use esta ferramenta OBRIGATORIAMENTE após coletar todos os dados do cliente (nome, CEP, cidade, renda líquida, valor do empréstimo, situação profissional) e confirmar as datas de vencimento. Use ANTES de enviar a mensagem final de transferência para o consultor. Esta ferramenta só pode gravar empréstimos com status RASCUNHO.",
+                "operation": "executeQuery",
+                "query": "=INSERT INTO aureacred.emprestimos (contact_id, cliente_nome, cliente_telefone, cliente_endereco, cep, cidade, renda_liquida, situacao_profissional, tempo_registro_clt, valor_principal, valor_total, valor_parcela, valor_juros, valor_quitacao, taxa_juros, parcelas, parcelas_pagas, valor_pago, quantidade_renovacoes, total_juros_pagos, status, observacoes, data_solicitacao, data_recebimento, proximo_vencimento, criado_em, atualizado_em) VALUES ({{ $fromAI('contact_id', 'ID do contato do Chatwoot. Use o valor de Contact_id das variáveis dinâmicas.', 'number') }}, '{{ $fromAI('cliente_nome', 'Nome completo do cliente informado durante o atendimento', 'string') }}', '{{ $fromAI('cliente_telefone', 'Telefone do cliente', 'string') }}', '{{ $fromAI('cliente_endereco', 'Cidade e CEP do cliente. Formato: Cidade - CEP', 'string') }}', '{{ $fromAI('cep', 'CEP do cliente no formato 00000000 ou 00000-000. Apenas números e hífen.', 'string') }}', '{{ $fromAI('cidade', 'Nome da cidade do cliente obtida via consulta de CEP. Deve ser uma das cidades atendidas: São Paulo, Guarulhos, Santo André, São Bernardo do Campo ou São Caetano do Sul.', 'string') }}', {{ $fromAI('renda_liquida', 'Renda líquida mensal informada pelo cliente. Apenas o número, sem R$ ou vírgulas. Exemplo: 2500.00', 'number') }}, '{{ $fromAI('situacao_profissional', 'Situação profissional do cliente. Valores aceitos: CLT, FUNCIONARIO_PUBLICO, AUTONOMO, COMERCIANTE, MEI, MOTORISTA_APLICATIVO, APOSENTADO, PENSIONISTA, OUTROS. Use exatamente um destes valores.', 'string') }}'::aureacred.situacao_profissional, {{ $fromAI('tempo_registro_clt', 'Tempo de registro CLT em meses. Informar apenas se situação for CLT, caso contrário use NULL. Exemplo: 12 para 1 ano, 6 para 6 meses.', 'number') }}, {{ $fromAI('valor_principal', 'Valor do empréstimo solicitado. Deve ser um destes valores: 100, 200, 300, 400, 500 ou 600', 'number') }}, CASE {{ $fromAI('valor_principal', 'Valor do empréstimo solicitado. Deve ser um destes valores: 100, 200, 300, 400, 500 ou 600', 'number') }} WHEN 100 THEN 140 WHEN 200 THEN 280 WHEN 300 THEN 420 WHEN 400 THEN 560 WHEN 500 THEN 700 WHEN 600 THEN 840 END, CASE {{ $fromAI('valor_principal', 'Valor do empréstimo solicitado. Deve ser um destes valores: 100, 200, 300, 400, 500 ou 600', 'number') }} WHEN 100 THEN 40 WHEN 200 THEN 80 WHEN 300 THEN 120 WHEN 400 THEN 160 WHEN 500 THEN 200 WHEN 600 THEN 240 END, CASE {{ $fromAI('valor_principal', 'Valor do empréstimo solicitado. Deve ser um destes valores: 100, 200, 300, 400, 500 ou 600', 'number') }} WHEN 100 THEN 40 WHEN 200 THEN 80 WHEN 300 THEN 120 WHEN 400 THEN 160 WHEN 500 THEN 200 WHEN 600 THEN 240 END, CASE {{ $fromAI('valor_principal', 'Valor do empréstimo solicitado. Deve ser um destes valores: 100, 200, 300, 400, 500 ou 600', 'number') }} WHEN 100 THEN 140 WHEN 200 THEN 280 WHEN 300 THEN 420 WHEN 400 THEN 560 WHEN 500 THEN 700 WHEN 600 THEN 840 END, 40.00, 1, 0, 0, 0, 0, 'RASCUNHO', '{{ $fromAI('observacoes', 'Observações adicionais coletadas durante o atendimento. Informações complementares que não se encaixam nos outros campos.', 'string') }}', CURRENT_DATE, '{{ $fromAI('data_recebimento', 'Data prevista para o PIX/depósito do valor ao cliente. Formato YYYY-MM-DD. Normalmente é amanhã, mas pode ser ajustada conforme o dia de pagamento do cliente.', 'string') }}'::date, '{{ $fromAI('data_recebimento', 'Data prevista para o PIX/depósito do valor ao cliente. Formato YYYY-MM-DD. Normalmente é amanhã, mas pode ser ajustada conforme o dia de pagamento do cliente.', 'string') }}'::date + INTERVAL '15 days', NOW(), NOW()) ON CONFLICT (contact_id) WHERE status = 'RASCUNHO' DO UPDATE SET cliente_nome = EXCLUDED.cliente_nome, cliente_telefone = EXCLUDED.cliente_telefone, cliente_endereco = EXCLUDED.cliente_endereco, cep = EXCLUDED.cep, cidade = EXCLUDED.cidade, renda_liquida = EXCLUDED.renda_liquida, situacao_profissional = EXCLUDED.situacao_profissional, tempo_registro_clt = EXCLUDED.tempo_registro_clt, valor_principal = EXCLUDED.valor_principal, valor_total = EXCLUDED.valor_total, valor_parcela = EXCLUDED.valor_parcela, valor_juros = EXCLUDED.valor_juros, valor_quitacao = EXCLUDED.valor_quitacao, observacoes = EXCLUDED.observacoes, data_recebimento = EXCLUDED.data_recebimento, proximo_vencimento = EXCLUDED.proximo_vencimento, atualizado_em = NOW() RETURNING id, cliente_nome, cidade, renda_liquida, situacao_profissional, valor_principal, status, data_recebimento, proximo_vencimento;",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.postgresTool",
+            "typeVersion": 2.6,
+            "position": [
+                6176,
+                1152
+            ],
+            "id": "681cd585-8db9-4e8d-87c4-338f01ee1610",
+            "name": "Gravar Empréstimo Rascunho",
+            "credentials": {
+                "postgres": {
+                    "id": "IT0NoFEDEFya6oUV",
+                    "name": "Cordex.ai - Chatwoot"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "descriptionType": "manual",
+                "toolDescription": "Envia o áudio com instruções de documentos para o cliente. Use esta ferramenta APÓS enviar o resumo final e a mensagem de encaminhamento para o consultor. Esta ferramenta envia um áudio explicando quais documentos o cliente precisa enviar (RG/CNH e comprovante de endereço). Após usar esta ferramenta, responda com a mensagem de texto detalhando os documentos necessários.",
+                "method": "POST",
+                "url": "=https://app.doutorai.com.br/api/v1/accounts/{{ $('Globals Set').first().json.account_id }}/conversations/{{ $('Globals Set').first().json.conversation_id }}/messages",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "{\n  \"message_type\": \"outgoing\",\n  \"attachments\": [\n    {\n      \"file_type\": \"audio\",\n      \"data_url\": \"https://github.com/pmcholding/AureaAgent/raw/refs/heads/main/audio_docs.ogg\"\n    }\n  ]\n}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequestTool",
+            "typeVersion": 4.2,
+            "position": [
+                6384,
+                1152
+            ],
+            "id": "enviar-audio-docs-tool",
+            "name": "Enviar Áudio de Documentos",
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "tr56s7v9Vbai5IBE",
+                    "name": "Chatwoot - Theo Aurea"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Postgres Chat Memory3": {
+            "ai_memory": [
+                [
+                    {
+                        "node": "Atendente2",
+                        "type": "ai_memory",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Atendente2": {
+            "main": [
+                []
+            ]
+        },
+        "DeepSeek Chat Model": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "Atendente2",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Pesquisa CEP": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Atendente2",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Gravar Empréstimo Rascunho": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Atendente2",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Enviar Áudio de Documentos": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Atendente2",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "0dff2809c326d67264ac89b11c62a81c0e33c81a110b2979fd152608e157400d"
+    }
+}

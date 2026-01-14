@@ -6,9 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repository contains the configuration and automation for **Grupo Áurea's** customer service chatbot ("Théo") and lead recovery workflows. Grupo Áurea is a loan company serving low-income individuals, self-employed workers, and people with negative credit history in the São Paulo metropolitan area.
 
-## Main File
+## Main Files
 
-The chatbot behavior is defined in `simple.md`. Always refer to this file for the current rules and responses.
+- **`fluxo-completo.md`** - Complete chatbot behavior and conversation flow. This is the primary file for Théo's rules and responses.
+- **`theo.json`** - n8n workflow nodes for the AI agent (LangChain + DeepSeek). Includes tool for sending document audio.
+- **`n8n-workflow-resgate-conversas.json`** - Workflow for recovering inactive conversations
 
 ## Chatwoot Automation Rules
 

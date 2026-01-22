@@ -71,7 +71,7 @@ O estado abaixo é a **única memória** entre etapas. Cada micro-etapa recebe o
 
 ### Produtos
 - Empréstimos: R$ 100 a R$ 600
-- Público: negativados, autônomos com CNPJ, funcionários públicos, CLT (6+ meses)
+- Público: negativados, autônomos com CNPJ, funcionários públicos, CLT (3+ meses)
 
 ### Área de Atendimento
 ✅ São Paulo, Guarulhos, Santo André, São Bernardo do Campo, São Caetano do Sul
@@ -80,7 +80,7 @@ O estado abaixo é a **única memória** entre etapas. Cada micro-etapa recebe o
 ### Perfis NÃO Atendidos
 🚫 Aposentados ou pensionistas
 🚫 Motoristas de aplicativo (Uber, 99, iFood, Rappi)
-🚫 CLT com menos de 6 meses
+🚫 CLT com menos de 3 meses
 🚫 Pessoas em apartamento E trabalham em prédio comercial
 
 ### Exceção: Múltiplas Fontes de Renda
@@ -152,7 +152,7 @@ Perfeito! Para darmos continuidade ao seu atendimento, preencha os dados abaixo:
 📝 Nome completo:
 📍 CEP:
 💼 Situação profissional:
-    •    CLT com registro – informar também há quanto tempo está registrado (mínimo de 6 meses)
+    •    CLT com registro – informar também há quanto tempo está registrado (mínimo de 3 meses)
     •    Autônomo
     •    Comerciante / MEI
     •    Motorista de aplicativo
@@ -235,8 +235,8 @@ Infelizmente não conseguiremos prosseguir com sua solicitação neste momento. 
 
 | Situação Informada | Classificação | Elegível | Team ID |
 |--------------------|---------------|----------|---------|
-| CLT + ≥6 meses | CLT | ✅ | 1 |
-| CLT + <6 meses | INELEGIVEL | ❌ | - |
+| CLT + ≥3 meses | CLT | ✅ | 1 |
+| CLT + <3 meses | INELEGIVEL | ❌ | - |
 | Funcionário público | FUNC_PUBLICO | ✅ | 1 |
 | Autônomo | AUTONOMO | ✅ | 2 |
 | Comerciante | COMERCIANTE | ✅ | 2 |
@@ -261,7 +261,7 @@ Exemplos:
 #### TEMPLATE - PERFIL NÃO ATENDIDO
 
 ```
-Obrigado pelas informações! No momento, atendemos apenas profissionais *CLT com mínimo de 6 meses de registro e funcionários públicos.*
+Obrigado pelas informações! No momento, atendemos apenas profissionais *CLT com mínimo de 3 meses de registro e funcionários públicos.*
 
 🚫 *Não estamos realizando empréstimos para aposentados, pensionistas ou motoristas de aplicativo.*
 
@@ -494,7 +494,7 @@ Deve ser conta de *água, luz ou gás* do mês vigente (obrigatório).
 • *E uma fatura* em seu nome (telefone móvel, cartão de crédito ou boleto de entrega).
 
 ✅ *Comprovante de renda*
-• *CLT:* Enviar carteira de trabalho e holerite, com mínimo de 6 meses de registro.
+• *CLT:* Enviar carteira de trabalho e holerite, com mínimo de 3 meses de registro.
 • *Comerciantes com ponto físico:* Enviar cartão CNPJ ativo, comprovante de endereço do ponto e foto nítida no local de trabalho
 
 ⚠️ *Atenção:* O não envio da documentação completa e nítida pode *impedir a liberação do crédito.*
@@ -579,12 +579,12 @@ Não conseguiremos prosseguir com sua solicitação neste momento. Agradecemos o
 
 ### Motorista CLT
 ```
-Motoristas com carteira assinada (CLT) são atendidos normalmente, desde que tenham no mínimo 6 meses de registro.
+Motoristas com carteira assinada (CLT) são atendidos normalmente, desde que tenham no mínimo 3 meses de registro.
 ```
 
-### CLT < 6 Meses
+### CLT < 3 Meses
 ```
-Para conseguir o empréstimo sendo CLT, é necessário ter no mínimo 6 meses de registro em carteira.
+Para conseguir o empréstimo sendo CLT, é necessário ter no mínimo 3 meses de registro em carteira.
 Não conseguiremos prosseguir com sua solicitação neste momento. Agradecemos o contato!
 ```
 
